@@ -17,3 +17,51 @@
 
 ## 事件环
 - 靠事件驱动
+
+## global (在当前文件夹下可以使用)
+- node中没有window属性
+- console.log(this);//{}  -->是空数组,不是global
+```
+console.log(this);//{}  -->是空数组,不是global
+```
+- 定时器中的this 是定时器自己
+
+## const
+- 必须初始化,否则会报错
+```
+const a;
+console.log(a);//SyntaxError: Missing initializer in const declaration
+```
+- 不可以修改
+```
+const b = 2;
+console.log(b);
+const b = 3;//Identifier 'b' has already been declared
+```
+
+- 只要内存不变可以更改内容
+```
+const a = [];
+console.log(a);//[]
+a.push('1');
+console.log(a);['1']
+```
+## var 
+- 可以不用初始化，使用时会提示undefined，不会报错
+- 可以修改
+
+## let
+- 写代码不要丢掉 let
+
+## 作用域 {}
+- 同一个“作用域 {}”下 变量不能声明两次
+```
+function  sum() {
+    let a = 1;
+    let b = 2;
+    let a = 3;//SyntaxError: Identifier 'a' has already been declared
+    return a+ b;
+}
+sum();
+console.log(sum());
+```
