@@ -20,7 +20,6 @@
 
 ## global (在当前文件夹下可以使用)
 - node中没有window属性
-- console.log(this);//{}  -->是空数组,不是global
 ```
 console.log(this);//{}  -->是空数组,不是global
 ```
@@ -64,4 +63,140 @@ function  sum() {
 }
 sum();
 console.log(sum());
+```
+
+- 如果使用了{} 必须要写return
+
+```
+// function a(a) {
+//     return function (b) {
+//         return a + b;
+//     }
+// }
+let sum = a => b => a + b;
+console.log(sum(1)(2));
+```
+
+## global 详解
+
+### console.time() ; console.timeEnd() 可以计算时差
+```
+console.time();
+for (var i = 0; i < 100000000; i++) {
+}
+console.timeEnd();
+//undefined: 151.056ms
+```
+
+
+### setTimeout setInterval (this 代表的是定时器自己)
+
+
+
+#### 改变this的方法
+- 改变函数中的this指向 (call,apply)会导致函数执行
+
+```
+let obj = {
+    color: 'red'
+};
+
+function add() {
+    console.log(this.color);
+}
+
+add.bind(obj)();//red
+add();//undefined
+```
+
+- bind只能绑定一次
+
+```
+function a() {
+    console.log(this);
+}
+var fn = a.bind(1).bind(2);
+fn();//[Number: 1]
+```
+
+- vat that = this保存this指向
+
+- 使用箭头函数处理this，因为自己家没有this指向 从而解决了this问题
+```
+let obj = {
+    a: function () {
+        setTimeout(()=> {
+            console.log(this === obj);
+        }, 1000);
+    }
+};
+obj.a();//true
+```
+
+#### 传递参数 可以从第二个参数开始传递实参
+
+#### 获取参数列表(将arguments转化成数组)
+```
+// 1.[].slice.call(arguments,1);
+// 2.Array.from(arguments).slice(1);
+// 3.剩余运算 ...args 将其他参数转换成数组类型 （拓展 展开运算符） [...arr,...arr1]
+function eat(what, ...args) { //arguments(实参的集合)
+    //获得除了第一个参数 后面的所有参数
+
+    console.log(arguments); // 类数组 { '0': '香蕉', '1': '苹果', '2': '橘子' }
+
+    console.log([].slice.call(arguments, 1)); //[ '苹果', '橘子' ]
+
+    console.log(Array.from(arguments).slice(1)); //[ '苹果', '橘子' ]
+
+    console.log(args);//[ '苹果', '橘子' ]
+
+    console.log(what);// '香蕉'
+
+}
+setTimeout(eat, 1000, '香蕉', '苹果', '橘子');
+```
+
+
+
+## this 的值到底是什么
+- this 就是你call一个函数时，传入的context
+- 如果你调用的函数不是call形式,请按照自动转化方式转化
+```
+func(p1, p2);//等价于 func.call(undefined, p1, p2);
+   
+obj.child.method(p1, p2);//等价于 obj.child.method.call(obj.child, p1, p2)
+
+func.apply(context, p1, p2);
+
+```
+
+
+```
+//e.g. 1
+function func() {
+   console.log(this)
+}
+func();//等价于func.call(undefined) this 就是window
+
+
+//e.g. 2
+var obj = {
+   foo: function () {
+       console.log(this)
+   }
+};
+var bar = obj.foo;
+obj.foo();// 转换为 obj.foo.call(obj)，this 就是 obj
+bar();//转换为 bar.call(undefined) this 就是 window
+
+// e.g. 3
+function fn() {
+   console.log(this)
+}
+function fn2() {
+   console.log(this)
+}
+var arr = [fn, fn2];
+arr[0]();// 相当于 arr.0.call(arr)
 ```
