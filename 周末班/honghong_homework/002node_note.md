@@ -200,3 +200,41 @@ function fn2() {
 var arr = [fn, fn2];
 arr[0]();// 相当于 arr.0.call(arr)
 ```
+
+## setImmediate VS setTimeout  异步
+- 传时间 =
+- 不传时间 setImmediate <= setTimeout
+
+## process 进程
+###
+- process.pid
+- process.kill(process.pid)//结束进程
+
+### 区分开发环境和线上环境
+- 在运行文件所在的路径下打开命令窗口 运行 node 文件名（e.g. node callback.js 线上环境）
+```
+if(process.env.NODE_EVN === 'development'){
+    console.log('开发环境');
+}else{
+    console.log('线上环境');
+}
+```
+
+- set NODE_EVN=development（命令行输入后）
+```
+node 文件名（开发环境）
+```
+
+### process.nextTick 下一队列（当前队列底部）
+```
+process.nextTick(function () {
+    console.log('nextTick');
+});
+setImmediate(function () {
+    console.log('setImmediate');
+});
+//重要的事情放在nextTick中，稍微不重要的setImmediate
+```
+
+
+
