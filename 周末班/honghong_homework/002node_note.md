@@ -293,15 +293,268 @@ npm uninstall jquery --save //怎样安装的就怎样卸载
 
 
 #### 3) 核心模块 -(内置模块)
-
+- fs url http 
+- util工具包node自带的工具包 继承inherits
 
 ### B) 定义模块
 - 在node中，一个JS文件就是一个模块
 ### C) 导出模块
 - exports 
 - module.exports
+```
+//a.js
+let a = 1;
+module.exports = a;
+console.log(module.exports);//1
+
+//b.js
+let result = require('./a.js');
+console.log(result);// 代表的是a.js 的module.exports
+
+//calc.js
+let calc = {
+    '+': (a, b) => a + b,
+    '-': (a, b) => a - b
+};
+module.exports = calc;
+
+//usecalc.js
+let result = require('./calc.js');
+console.log(result['+'](2, 3));//5
+
+```
+
+- 注意:
+每个文件都是一个模块，模块化是通过闭包实现的
+多次require不会多次导入，默认会缓存到require.cache这个对象中
+
+## 13 模块安装
+### http-server (帮助用户启动服务 返回一个静态文件)
+```
+nom install http-server -g//安装
+
+http-server -p 4000//在想要访问的文件夹下启动服务
+```
+
+### nodeppt
+```
+nom install nodeppt -g//安装
+
+nodeppt start //在想要执行的文件夹下,文件中包含slide
+```
+
+### 发布包 (多个模块组成一个包-包必须要存在package.json文件)
+```
+npm init -y
+
+nrm use npm //切换到npm 上
+
+npm adduser // 登录 注册
+
+npm publish // 发布
+
+```
+
+### 查看占用的端口
+```
+netstate -anto | findstr "8080"
+ps -ef | grep node 
+kill pid
+```
 
 
+## 14 pack 
+- require
+```
+let result = require('handsome-boy');//.第三方模块会到当前目录下找node_modules,找名字叫handsome-boy，找到后找到对应package.json,找到入口文件将其执行,如果当前目录下没有找到 会到上一级目录查找,如果找到根路径为止没有找到，则报错
+console.log(module.paths);//查找路径 -->[ 'D:\\201702node\\4.pack\\node_modules',
+                                      'D:\\201702node\\node_modules',
+                                      'D:\\node_modules' ]
+
+```
+
+
+## 15 继承
+### 1) call（只继承私有属性）
+```
+function Parent() {
+    this.cardId = 'xxx123';
+}
+
+Parent.prototype.eat = function () {
+    console.log('吃肉');
+}
+
+function Child() {
+    Parent.call(this);
+}
+
+let child = new Child();
+console.log(child.eat);//undefined
+console.log(child);//Child { cardId: 'xxx123' }
+```
+
+
+### 2) new Parent (继承公有 + 私有 属性)
+```
+function Parent() {
+    this.cardId = 'xxx123';
+}
+
+Parent.prototype.eat = function () {
+    console.log('吃肉');
+}
+
+function Child() {
+
+}
+
+Child.prototype = new Parent();
+
+let child = new Child();
+console.log(child.cardId);
+child.eat();
+
+```
+
+### 3) Child.prototype.__proto__ = Parent.prototype 只继承公有属性)
+```
+function Parent() {
+    this.cardId = 'xxx123';
+}
+
+Parent.prototype.eat = function () {
+    console.log('吃肉');
+}
+
+function Child() {
+
+}
+
+Child.prototype.__proto__ = Parent.prototype;
+
+let child = new Child();
+console.log(Child.cardId); //undefined
+child.eat();//'吃肉'
+
+```
+
+
+### 4) create (只继承公有属性)
+```
+function Parent() {
+    this.cardId = 'xxx123';
+}
+
+Parent.prototype.eat = function () {
+    console.log('吃肉');
+}
+
+function Child() {
+}
+
+function create(parentPro) {
+    let Func = function () {
+    }
+    Func.prototype = parentPro;
+    return new Func();
+}
+
+Child.prototype = create(Parent.prototype);
+let child = new Child();
+
+console.log(child.cardId);//undefined
+child.eat();// '吃肉'
+
+```
+
+
+### 5) util.inherits(Child, Parent) (只继承公有属性)
+```
+function Parent() {
+    this.cardId = 'xxx123';
+}
+
+Parent.prototype.eat = function () {
+    console.log('吃肉');
+}
+
+function Child() {
+}
+
+let util = require('util');
+util.inherits(Child, Parent);
+let child = new Child();
+console.log(child.cardId);//undefined
+child.eat();// '吃肉'
+```
+
+### 6) Object.setPrototypeOf(Child.prototype, Parent.prototype) -ES6 (只继承公有的)
+```
+function Parent() {
+    this.cardId = 'xxx123';
+}
+
+Parent.prototype.eat = function () {
+    console.log('吃肉');
+}
+
+function Child() {
+}
+Object.setPrototypeOf(Child.prototype, Parent.prototype);
+
+let child = new Child;
+console.log(child.cardId);//undefined
+child.eat();// '吃肉'
+```
+
+
+## 16 events
+
+
+
+
+## 17 blog ( 搭建静态博客hexo)
+### 安装hexo模块
+```
+npm install hexo-cli -g // 安装hexo模块
+
+hexo init blog // 生成博客项目
+
+cd blog && npm install // 进入目录安装依赖
+
+hexo server // 启动服务
+
+```
+
+### 部署到github上
+#### 一个账号只能部署一个,名字必须交 用户名.github.io
+
+#### 发布github需要一个发布到github的插件
+```
+npm install hexo-deployer-git --save
+```
+
+#### 配置发布文件
+```
+deploy:
+  type: git
+  repo: https://username:password@github.com/zuyuan/zuyuan.github.io.git
+  branch: master
+```
+
+#### 发布
+```
+//当前目录下,每次更新都需要执行这两部
+hexo g 生成
+hexo d 发布
+```
+
+
+## 18 yarn包管理器
+```
+npm install yarn -g
+```
 
 
 
